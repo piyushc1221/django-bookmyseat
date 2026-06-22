@@ -28,7 +28,11 @@ SECRET_KEY = 'django-insecure-dgi41$)k5q#_d5g4l580*wlu6ipzu%wrh($3d89v8qs#0fg(_c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    'django-bookmyseat-k5i8.vercel.app',
+]
 
 
 # Application definition
