@@ -1,0 +1,99 @@
+{% extends "users/basic.html" %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-primary">
+            🎬 Movies
+        </h1>
+        <p class="text-muted">
+            Choose your favorite movie and book your seats
+        </p>
+    </div>
+
+    <div class="row">
+
+        {% for movie in movies %}
+
+        <div class="col-lg-4 col-md-6 mb-4">
+
+            <div class="card movie-card h-100 shadow border-0">
+
+                <img src="{{ movie.image.url }}"
+                     class="card-img-top movie-image"
+                     alt="{{ movie.name }}">
+
+                <div class="card-body">
+
+                    <h4 class="fw-bold">
+                        {{ movie.name }}
+                    </h4>
+
+                    <h5 class="text-warning">
+                        ⭐ {{ movie.rating }}
+                    </h5>
+
+                    <p class="text-muted">
+                        <strong>Cast:</strong><br>
+                        {{ movie.cast }}
+                    </p>
+
+                </div>
+
+                <div class="card-footer bg-white border-0">
+
+                    <a href="{% url 'theatre_list' movie.id %}"
+                       class="btn btn-primary w-100 rounded-pill">
+                        🎟 View Theatres
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <div class="col-12 text-center">
+            <h3>No Movies Available</h3>
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<style>
+
+.movie-card{
+    border-radius:20px;
+    overflow:hidden;
+    transition:0.4s;
+}
+
+.movie-card:hover{
+    transform:translateY(-10px);
+    box-shadow:0 15px 30px rgba(0,0,0,.2)!important;
+}
+
+.movie-image{
+    height:450px;
+    object-fit:cover;
+}
+
+.btn-primary{
+    background:linear-gradient(90deg,#4e54c8,#8f94fb);
+    border:none;
+}
+
+.btn-primary:hover{
+    background:linear-gradient(90deg,#3b40b0,#7479e6);
+}
+
+</style>
+
+{% endblock %}

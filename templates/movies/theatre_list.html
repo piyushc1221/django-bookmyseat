@@ -1,0 +1,84 @@
+{% extends "users/basic.html" %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+        <h1 class="display-4 text-primary">
+            🎬 Theatres for {{ movie.name }}
+        </h1>
+        <p class="text-muted">
+            Select a theatre and continue to seat booking
+        </p>
+    </div>
+
+    <div class="row">
+
+        {% for theatre in theatres %}
+
+        <div class="col-md-6 mb-4">
+
+            <div class="card shadow border-0 rounded-4 h-100">
+
+                <div class="card-body">
+
+                    <h3 class="text-dark">
+                        🍿 {{ theatre.name }}
+                    </h3>
+
+                    <hr>
+
+                    <p class="mb-3">
+                        🕒 Show Time :
+                        <strong>{{ theatre.time }}</strong>
+                    </p>
+
+                    <a href="{% url 'book_seats' theatre.id %}"
+                       class="btn btn-primary btn-lg rounded-pill">
+                        🎟 View Seats
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <div class="col-12">
+            <div class="alert alert-warning text-center">
+                No theatres available for this movie.
+            </div>
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<style>
+
+.card{
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-8px);
+    box-shadow:0 12px 25px rgba(0,0,0,.15)!important;
+}
+
+.btn-primary{
+    background:linear-gradient(90deg,#4e54c8,#8f94fb);
+    border:none;
+}
+
+.btn-primary:hover{
+    background:linear-gradient(90deg,#3840c9,#7479e6);
+}
+
+</style>
+
+{% endblock %}
