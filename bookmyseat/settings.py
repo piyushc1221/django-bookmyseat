@@ -58,6 +58,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 AUTH_USER_MODEL='auth.User'
 EMAIL_PASSWORD='django.core.mail.backends.console.EmailBackend'
 
@@ -113,6 +115,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+]
+CSRF_TRUSTED_ORIGINS = [
+    "https://django-bookmyseat-k5i8.vercel.app",
 ]
 
 
