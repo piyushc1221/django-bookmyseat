@@ -31,7 +31,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
-    'django-bookmyseat-k5i8.vercel.app',
+    'django-bookmyseat-six.vercel.app',
 ]
 
 
@@ -120,6 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 CSRF_TRUSTED_ORIGINS = [
     "https://django-bookmyseat-k5i8.vercel.app",
+    'https://django-bookmyseat-six.vercel.app',
 ]
 
 
