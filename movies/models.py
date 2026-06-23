@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from .validators import get_youtube_video_id, validate_youtube_url
 
 class Movie(models.Model):
     name=models.CharField(max_length=250)
@@ -7,10 +8,16 @@ class Movie(models.Model):
     rating=models.DecimalField(max_digits=3,decimal_places=1)
     cast=models.TextField()
     description=models.TextField(blank=True,null=True)
+    trailer_url = models.URLField(blank=True, null=True, validators=[validate_youtube_url])
 
-    def __str__(self):
-        return self.name
-    
+    def get_embed_url(self):
+        video_id = get_youtube_video_id(self.trailer_url)
+        if not video_id:
+            return ""
+
+        return f"https://www.youtube-nocookie.com/embed/{video_id}"
+
+
 class Theatre(models.Model):
     name=models.CharField(max_length=250)
     movie=models.ForeignKey(Movie,on_delete=models.CASCADE,related_name='theatres')

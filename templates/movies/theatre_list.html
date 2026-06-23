@@ -13,6 +13,24 @@
         </p>
     </div>
 
+    <div class="mb-5">
+        {% if movie.get_embed_url %}
+        <iframe
+            class="w-100"
+            height="400"
+            src="{{ movie.get_embed_url }}"
+            title="{{ movie.name }} trailer"
+            loading="lazy"
+            referrerpolicy="strict-origin-when-cross-origin"
+            sandbox="allow-scripts allow-same-origin allow-presentation"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen>
+        </iframe>
+        {% else %}
+        <p class="text-center text-muted">No trailer found.</p>
+        {% endif %}
+    </div>
+
     <div class="row">
 
         {% for theatre in theatres %}

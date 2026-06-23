@@ -4,12 +4,12 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 
 def movie_list(request):
-    search_query=request.Get.get("search")
+    search_query=request.GET.get("search")
     if search_query:
         movies=Movie.objects.filter(name__icontains=search_query)
     else:
         movies=Movie.objects.all()
-    return render(request,'movies/movie_list.html',{'movies': movies})
+    return render(request,'movies/movies_list.html',{'movies': movies})
         
 def theatre_list(request,movie_id):
     
@@ -51,5 +51,3 @@ def book_seats(request,theatre_id):
             return render(request,'movies/seat_selection.html',{'theatre':theatres,'seats':seats,'error':'NO SEAT SELECTED'})
         return redirect('/profile/')
     return render(request,'movies/seat_selection.html',{'theatres':theatres,'seats':seats})
-    
- 
