@@ -3,12 +3,17 @@ from .forms import UserRegisterForm,UserUpdateForm
 from django.shortcuts import render,redirect
 from django.contrib.auth import login,authenticate
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from movies.models import Movie,Booking,Seat,Theatre
 
 def home(request):
     movies=Movie.objects.all()
     return render(request,'home.html',{'movies':movies})
 
+@never_cache
+@csrf_protect
+@ensure_csrf_cookie
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
@@ -23,6 +28,9 @@ def register(request):
         form = UserRegisterForm()
     return render(request, 'users/register.html', {'form' : form})
 
+@never_cache
+@csrf_protect
+@ensure_csrf_cookie
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request,data = request.POST)
@@ -56,4 +64,3 @@ def reset_password(request):
     else:
         form = PasswordChangeForm(instance=request.user)
     return render(request, 'users/reset_password.html', {'form' : form})
-    

@@ -20,7 +20,7 @@
     </div>
     {% endif %}
 
-    <form method="POST">
+    <form method="POST" action="{% url 'book_seats' theatre.id %}">
         {% csrf_token %}
 
         <div class="row">
@@ -29,19 +29,37 @@
 
             <div class="col-md-3 col-sm-4 col-6 mb-4">
 
-                <div class="seat-card">
+                <div class="seat-card" data-seat-id="{{ seat.id }}" data-seat-status="{{ seat.status }}" data-seconds-left="{{ seat.seconds_left }}">
 
-                    {% if seat.is_booked %}
+                    {% if seat.status == 'booked' %}
 
-                        <div class="booked-seat">
+                        <div class="seat-box booked-seat">
                             ❌ Seat {{ seat.seat_no }}
                             <br>
-                            <small>Booked</small>
+                            <small class="seat-status">Booked</small>
+                        </div>
+
+                    {% elif seat.status == 'reserved_by_you' %}
+
+                        <div class="seat-box reserved-you-seat">
+                            ⏳ Seat {{ seat.seat_no }}
+                            <br>
+                            <small class="seat-status">Reserved by you</small>
+                            <br>
+                            <small class="seat-timer">{{ seat.seconds_left }}s left</small>
+                        </div>
+
+                    {% elif seat.status == 'reserved' %}
+
+                        <div class="seat-box reserved-seat">
+                            🔒 Seat {{ seat.seat_no }}
+                            <br>
+                            <small class="seat-status">Temporarily locked</small>
                         </div>
 
                     {% else %}
 
-                        <label class="available-seat w-100">
+                        <label class="seat-box available-seat w-100">
 
                             <input type="checkbox"
                                    name="seats"
@@ -50,7 +68,7 @@
                             <div>
                                 💺 Seat {{ seat.seat_no }}
                                 <br>
-                                <small>Available</small>
+                                <small class="seat-status">Available</small>
                             </div>
 
                         </label>
@@ -68,12 +86,24 @@
         <div class="text-center mt-4">
 
             <button class="btn btn-lg btn-primary px-5 rounded-pill">
-                🎬 Book Selected Seats
+                ⏳ Reserve Selected Seats
             </button>
 
         </div>
 
     </form>
+
+    {% if has_user_reservations %}
+    <form method="POST" action="{% url 'confirm_booking' theatre.id %}" class="text-center mt-3">
+        {% csrf_token %}
+        <button class="btn btn-lg btn-success px-5 rounded-pill">
+            💳 Proceed to Payment
+        </button>
+        <p class="text-muted mt-2 mb-0">
+            Booking is confirmed only after secure payment verification.
+        </p>
+    </form>
+    {% endif %}
 
 </div>
 
@@ -87,14 +117,18 @@
     transform:translateY(-5px);
 }
 
-.available-seat{
-    background:white;
-    border:2px solid #28a745;
+.seat-box{
+    min-height:120px;
     border-radius:20px;
     padding:20px;
     text-align:center;
-    cursor:pointer;
     box-shadow:0 5px 15px rgba(0,0,0,.1);
+}
+
+.available-seat{
+    background:white;
+    border:2px solid #28a745;
+    cursor:pointer;
 }
 
 .available-seat:hover{
@@ -110,10 +144,22 @@
     background:#ffe5e5;
     border:2px solid #dc3545;
     color:#dc3545;
-    border-radius:20px;
-    padding:20px;
-    text-align:center;
-    box-shadow:0 5px 15px rgba(0,0,0,.1);
+}
+
+.reserved-seat{
+    background:#fff6d8;
+    border:2px solid #ffc107;
+    color:#856404;
+}
+
+.reserved-you-seat{
+    background:#e8f1ff;
+    border:2px solid #0d6efd;
+    color:#0d6efd;
+}
+
+.seat-timer{
+    font-weight:700;
 }
 
 .btn-primary{
@@ -126,5 +172,61 @@
 }
 
 </style>
+
+<script>
+const statusUrl = "{% url 'seat_status' theatre.id %}";
+
+function updateCountdowns() {
+    document.querySelectorAll("[data-seat-status='reserved_by_you']").forEach((card) => {
+        let seconds = Number(card.dataset.secondsLeft || 0);
+        seconds = Math.max(seconds - 1, 0);
+        card.dataset.secondsLeft = seconds;
+
+        const timer = card.querySelector(".seat-timer");
+        if (timer) {
+            timer.textContent = `${seconds}s left`;
+        }
+
+        if (seconds === 0) {
+            window.location.reload();
+        }
+    });
+}
+
+function refreshSeatStatus() {
+    fetch(statusUrl, {headers: {"X-Requested-With": "XMLHttpRequest"}})
+        .then((response) => response.json())
+        .then((data) => {
+            let shouldReload = false;
+
+            data.seats.forEach((seat) => {
+                const card = document.querySelector(`[data-seat-id='${seat.id}']`);
+                if (!card) {
+                    shouldReload = true;
+                    return;
+                }
+
+                if (card.dataset.seatStatus !== seat.status) {
+                    shouldReload = true;
+                    return;
+                }
+
+                card.dataset.secondsLeft = seat.seconds_left;
+            });
+
+            const confirmForm = document.querySelector("form[action$='/confirm/']");
+            if (data.has_user_reservations !== Boolean(confirmForm)) {
+                shouldReload = true;
+            }
+
+            if (shouldReload) {
+                window.location.reload();
+            }
+        });
+}
+
+setInterval(updateCountdowns, 1000);
+setInterval(refreshSeatStatus, 5000);
+</script>
 
 {% endblock %}

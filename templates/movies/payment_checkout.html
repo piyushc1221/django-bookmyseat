@@ -1,0 +1,109 @@
+{% extends "users/basic.html" %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+
+            <div class="card shadow border-0">
+                <div class="card-body p-5">
+
+                    <h2 class="fw-bold text-primary mb-3">
+                        Secure Payment
+                    </h2>
+
+                    <p class="text-muted">
+                        {{ payment.theatre.movie.name }} at {{ payment.theatre.name }}
+                    </p>
+
+                    <div class="payment-summary mb-4">
+                        <p class="mb-2">
+                            <strong>Seats:</strong>
+                            {% for seat in payment.seats.all %}
+                                {{ seat.seat_no }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                        <p class="mb-0">
+                            <strong>Total:</strong> ₹{{ amount_display }}
+                        </p>
+                    </div>
+
+                    {% if razorpay_key_id %}
+                    <button id="pay-button" class="btn btn-success btn-lg w-100 rounded-pill">
+                        Pay Securely
+                    </button>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        Razorpay keys are not configured. Add keys in settings before taking payments.
+                    </div>
+                    {% endif %}
+
+                    <form id="cancel-payment-form" method="POST" action="{% url 'payment_cancel' payment.id %}" class="mt-3">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-danger w-100 rounded-pill">
+                            Cancel Payment
+                        </button>
+                    </form>
+
+                    <form id="payment-callback-form" method="POST" action="{% url 'payment_callback' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+                        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+                        <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<style>
+.payment-summary{
+    background:#f8f9fa;
+    border-radius:12px;
+    padding:18px;
+}
+</style>
+
+{% if razorpay_key_id %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+const options = {
+    key: "{{ razorpay_key_id }}",
+    amount: "{{ payment.amount }}",
+    currency: "{{ payment.currency }}",
+    name: "BookMySeat",
+    description: "{{ payment.theatre.movie.name }} tickets",
+    order_id: "{{ payment.provider_order_id }}",
+    handler: function (response) {
+        document.getElementById("razorpay_order_id").value = response.razorpay_order_id;
+        document.getElementById("razorpay_payment_id").value = response.razorpay_payment_id;
+        document.getElementById("razorpay_signature").value = response.razorpay_signature;
+        document.getElementById("payment-callback-form").submit();
+    },
+    modal: {
+        ondismiss: function () {
+            document.getElementById("cancel-payment-form").submit();
+        }
+    },
+    prefill: {
+        name: "{{ request.user.username }}"
+    },
+    theme: {
+        color: "#0d6efd"
+    }
+};
+
+document.getElementById("pay-button").addEventListener("click", function () {
+    const checkout = new Razorpay(options);
+    checkout.open();
+});
+</script>
+{% endif %}
+
+{% endblock %}

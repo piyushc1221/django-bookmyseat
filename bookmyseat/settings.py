@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users',
-    'movies',
+    'movies.apps.MoviesConfig',
 ]
 
 MIDDLEWARE = [
@@ -67,7 +67,7 @@ MEDIA_URL='/media/'
 MEDIA_ROOT=os.path.join(BASE_DIR, 'media ')
 
 ROOT_URLCONF = 'bookmyseat.urls'
-LOGIN_URL='/login/ '
+LOGIN_URL='/login/'
 
 TEMPLATES = [
     {
@@ -140,3 +140,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', '')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', '')
+RAZORPAY_WEBHOOK_SECRET = os.environ.get('RAZORPAY_WEBHOOK_SECRET', '')
+TICKET_PRICE_PAISE = int(os.environ.get('TICKET_PRICE_PAISE', '25000'))
